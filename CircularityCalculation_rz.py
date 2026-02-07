@@ -118,7 +118,7 @@ def Abadi_W26(allstars,stars_r,makeplot=False):
     # However, note we use minimum potential from sampled points, as this will be better for
     # estimating the energy of a circular orbit in the midplane. Run r442 for a good demonstration
     # of this
-    rs = [pos for r in radii for pos in [(r, 0, 0), (0, r, 0), (-r, 0, 0), (0, -r, 0)]]
+    rs = [pos for r in radii for pos in [(r, 0, 0), (r/np.sqrt(2),r/np.sqrt(2),0), (0, r, 0), (-r/np.sqrt(2),r/np.sqrt(2),0), (-r, 0, 0), (-r/np.sqrt(2),-r/np.sqrt(2),0), (0, -r, 0), (r/np.sqrt(2),-r/np.sqrt(2),0)]]
     m_by_r, m_by_r2 = pynbody.gravity.direct(h[hid], np.array(rs, dtype=h[hid]['pos'].dtype), eps=s['eps'][0])
     v_out = (m_by_r2.units * h[hid]['pos'].units) ** (1, 2)
     phi_out = units.G * h[hid]['mass'].units / h[hid]['pos'].units
@@ -132,7 +132,7 @@ def Abadi_W26(allstars,stars_r,makeplot=False):
     for r in radii:
         r_acc_r = []
         pot = []
-        for pos in [(r, 0, 0), (0, r, 0), (-r, 0, 0), (0, -r, 0)]:
+        for pos in [(r, 0, 0), (r/np.sqrt(2),r/np.sqrt(2),0), (0, r, 0), (-r/np.sqrt(2),r/np.sqrt(2),0), (-r, 0, 0), (-r/np.sqrt(2),-r/np.sqrt(2),0), (0, -r, 0), (r/np.sqrt(2),-r/np.sqrt(2),0)]:
             r_acc_r.append(np.dot(-m_by_r2[i, :], pos))
             pot.append(potential[i])
             i = i + 1
