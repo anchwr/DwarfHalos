@@ -31,7 +31,7 @@ uIDs = np.unique(hostids)
 
 # create a version of allstars that's in the same order as the data in the hdf5 file
 if np.array_equal(partids,allstars['iord']): # if these are the same, we don't need to do anything else
-    pass
+    allstars_inhdf5 = allstars
 else: # If they're not, re-order sim data so that the stars are in the same order as the hdf5 file 
     if len(allstars['iord'])!=len(partids):
         print ('WARNING: You have '+str(len(partids))+' stars in your allhalostardata file and '+str(len(allstars['iord']))+' stars in your simulation')
