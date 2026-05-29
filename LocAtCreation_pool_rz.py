@@ -10,15 +10,12 @@ Output: <sim>_stardata_<snapshot>.h5
         analyzed. There will be <nproc> of these files generated
         and processes will not necessarily analyze adjacent snapshots
 
-Usage:   python LocAtCreation_pool_rz.py <sim> optional:<nproc>
-Example: python LocAtCreation_pool_rz.py r634 2
+Usage:   python LocAtCreation_pool_rz.py <sim> optional:<nproc> 
+Example: python LocAtCreation_pool_rz.py r634 4 
 
-Includes an optional argument to specify number of processes to run
-with; default is 4. Note that this will get reduced if you've specified
-more processes than you have snapshots to process.
-
-Note that this is currently set up for MMs, but should be easily adapted 
-by e.g., changing the paths or adding a path CL argument. 
+Includes an optional argument to specify number of processes to run with;
+default is 4. Note that this will get reduced if you've specified more 
+processes than you have snapshots to process. 
 '''
 
 import numpy as np
@@ -33,11 +30,11 @@ import sys
 n_processes = 4 # default number of processes 
 
 if len(sys.argv)<2 or len(sys.argv)>3:
-    print ('Usage: python LocAtCreation_pool_rz.py <sim> opt:<nproc>')
-    print ('       default number of processes is '+int(n_processes))
+    print ('Usage: python LocAtCreation_pool_rz.py <sim> optional:<nproc>')
     sys.exit()
 elif len(sys.argv)==2:
     cursim = str(sys.argv[1])
+    n_processes = 4
 else:
     cursim = str(sys.argv[1])
     n_processes = int(sys.argv[2])
@@ -45,6 +42,11 @@ else:
 opath = '/Users/Anna/Research/Outputs/M33Analogs/MM/'+cursim+'/'
 halostarsfile = '/Users/Anna/Research/Outputs/M33Analogs/'+cursim+'_tf.npy'
 simpath = '/Volumes/Audiobooks/RomZooms/'+cursim+'.romulus25.3072g1HsbBH/'
+pform = 1   # If pform=1, script will assume that snapshots are located inside of
+            # snapshot folders. If pform=2, it will assume that snapshots are
+            # all located on the same level.
+IDkey = 'amiga.grp' # What ID keyword should be used to access halo IDs in pynbody (e.g., 'amiga.grp')?
+AHF = False # Did you construct your tangos db with AHF (rather than amiga)?
 
 dat = np.load(halostarsfile) # load in data
 halostars = dat[0]
@@ -85,12 +87,18 @@ def FindHaloStars(dsnames):
     # iterate through the snapshots this process has been assigned
     ctr = 0
     for step in dsnames:
-        s = pynbody.load(simpath+step+'/'+step) # load in snapshot
-        assert(step==s.filename.split('/')[-1]) # and make sure it's the right one
+        if pform == 1:
+            snapshotpath = simpath+step+'/'+step
+        elif pform == 2:
+            snapshotpath = simpath+step
+        s = pynbody.load(snapshotpath) # load in snapshot
+        if '/' in s.filename:
+            sname = s.filename.split('/')[-1]
+        assert(step==sname) # and make sure it's the right one
 
         # identify the timespan we should be checking for new stars
         # i.e., the time between the previous snapshot and this one
-        ind = np.where(np.array(tst)==s.filename.split('/')[-1])[0][0]
+        ind = np.where(np.array(tst)==sname)[0][0]
         if ind != 0:
             low_time = tgyr[ind-1]
         else:
@@ -114,17 +122,31 @@ def FindHaloStars(dsnames):
         posarr = s.s['pos'][np.ma.compressed(res)].in_units('Mpc')
         ctarr = s.s['tform'][np.ma.compressed(res)].in_units('Gyr')
         idarr = s.s['iord'][np.ma.compressed(res)]
-        hostarr = s.s['amiga.grp'][np.ma.compressed(res)]
+        hostarr = s.s[IDkey][np.ma.compressed(res)]
         starr = np.repeat(float(s.filename.split('.')[-1]),len(ctarr))
         
         # Convert the 0s that amiga uses for the hosts of particles that aren't bound to
         # a halo to -1s and convert all other host IDs to their index in the tangos database
+        # If AHF has been used, correct amiga.grps to AHF IDs first.
         fid = {}
-        fid['0'] = -1
+        if not AHF:
+            fid['0'] = -1
+        else:
+            hostarr = hostarr-1
         for i in range(1,len(sim[int(ind)].halos[:])+1):
-            fid[str(sim[int(ind)][int(i)].finder_id)] = i
+            fval = sim[int(ind)][int(i)].finder_id
+            fid[str(fval)] = i
+
+        # If a halo exists in the halo catalog, but not in the tangos database, assign stars to 
+        # halo -1
+        for i in np.unique(hostarr):
+            if i not in fid:
+                fid[i] = -1
+                
         dbhostarr = np.array([fid[str(x)] for x in hostarr])
-        assert(len(starinds)==len(idarr)) # make sure you got everything
+        if not np.array_equal(ctarr,createtime[starinds]):
+            print ('ERROR: the iords in this simulation are not used consistently')
+            exit()
 
         # periodically write data to output file
         compidarr.extend(idarr)

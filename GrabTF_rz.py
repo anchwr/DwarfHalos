@@ -8,8 +8,10 @@ Output: <sim>_tf.npy
 Usage:   python GrabTF_rz.py <sim>
 Example: python GrabTF_rz.py r634
 
-Note that this is currently set up for MMs, but should be easily adapted 
-by e.g., changing the paths or adding a path CL argument. 
+Includes an optional argument to specify the file hierarchy format.
+By default (pathformat=1), it will assume that snapshots are located inside of
+snapshot folders. If pathformat=2, it will assume that snapshots are
+all located on the same level.
 '''
 
 import numpy as np
@@ -17,15 +19,26 @@ import pynbody
 import sys
 
 if len(sys.argv) != 2:
-    print ('Usage: python GrabTF_rz.py <sim>')
+    print ('Usage: python GrabTF_rz.py <sim> ')
     sys.exit()
 else:
     cursim = str(sys.argv[1])
 
 ofile = '/Users/Anna/Research/Outputs/M33Analogs/'+cursim+'_tf.npy'
 simpath = '/Volumes/Audiobooks/RomZooms/'+cursim+'.romulus25.3072g1HsbBH/'
+pform = 1   # If pform=1, script will assume that snapshots are located inside of
+            # snapshot folders. If pform=2, it will assume that snapshots are
+            # all located on the same level.
 
-s = pynbody.load(simpath+simpath.split('/')[-2]+'.004096/'+simpath.split('/')[-2]+'.004096')
+if pform == 1:
+    snapshotpath = simpath+simpath.split('/')[-2]+'.004096/'+simpath.split('/')[-2]+'.004096'
+elif pform == 2:
+    snapshotpath = simpath+simpath.split('/')[-2]+'.004096'
+else:
+    print ('Error: Path format not understood')
+    sys.exit()
+
+s = pynbody.load(snapshotpath)
 tf = s.s['tform'][s.s['tform']>0].in_units('Gyr')
 iord = s.s['iord'][s.s['tform']>0]
 

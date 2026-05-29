@@ -11,13 +11,16 @@ Output: <sim>_stardata_<snapshot>.h5
         analyzed. There will be <nproc> of these files generated
         and processes will not necessarily analyze adjacent snapshots
 
-Usage:   python LocAtCreation_pool_rz.py <simroot> <outpath> <nproc> <IDkey>
-Example: python LocAtCreation_pool_rz.py /data/REPOSITORY/romulus_zooms/r431.romulus25.3072g1HsbBH/ /home/awright/dwarf_stellar_halos/r431/ 4 amiga.grp
+Usage:   python LocAtCreation_pool_rz.py <simroot> <outpath> <nproc> <IDkey> <pathformat> <AHF>
+Example: python LocAtCreation_pool_rz.py /data/REPOSITORY/romulus_zooms/r431.romulus25.3072g1HsbBH/ /home/awright/dwarf_stellar_halos/r431/ 4 amiga.grp 1 False
 
 Includes an argument to specify number of processes to run with; default is 4. 
 Note that this will get reduced if you've specified more processes than you have 
-snapshots to process.
- 
+snapshots to process. Also includes an argument to specify file hierarchy. If pathformat=1, 
+script will assume that snapshots are located inside of snapshot folders. If pformat=2, it 
+will assume that snapshots are all located on the same level. If AHF=True, the script will
+assume that you used AHF to construct your tangos database and will correct indexing 
+accordingly.
 '''
 
 import numpy as np
@@ -31,14 +34,23 @@ import sys
 
 n_processes = 4 # default number of processes 
 
-if len(sys.argv)<5:
-    print ('Usage: python LocAtCreation_pool_rz.py <simroot> <outpath> <nproc> <IDkey>')
+def str2bool(torf):
+    if torf == 'True' or torf == 'true':
+        resp = True
+    else:
+        resp = False
+    return resp
+
+if len(sys.argv) != 7:
+    print ('Usage: python LocAtCreation_pool_rz.py <simroot> <outpath> <nproc> <IDkey> <pathformat> <AHF>')
     sys.exit()
 else:
     simpath = str(sys.argv[1])
     outpath = str(sys.argv[2])
     n_processes = int(sys.argv[3])
     IDkey = str(sys.argv[4])
+    pform = int(sys.argv[5])
+    AHF = str2bool(sys.argv[6])
 
 cursim = simpath.split('/')[-2].split('.')[0]
 halostarsfile = outpath+cursim+'_tf.npy'
@@ -81,12 +93,18 @@ def FindHaloStars(dsnames):
     # iterate through the snapshots this process has been assigned
     ctr = 0
     for step in dsnames:
-        s = pynbody.load(simpath+step+'/'+step) # load in snapshot
-        assert(step==s.filename.split('/')[-1]) # and make sure it's the right one
-
+        if pform == 1:
+            snapshotpath = simpath+step+'/'+step
+        elif pform == 2:
+            snapshotpath = simpath+step
+        s = pynbody.load(snapshotpath) # load in snapshot
+        if '/' in s.filename:
+            sname = s.filename.split('/')[-1]
+        assert(step==sname) # and make sure it's the right one
+ 
         # identify the timespan we should be checking for new stars
         # i.e., the time between the previous snapshot and this one
-        ind = np.where(np.array(tst)==s.filename.split('/')[-1])[0][0]
+        ind = np.where(np.array(tst)==sname)[0][0]
         if ind != 0:
             low_time = tgyr[ind-1]
         else:
@@ -115,10 +133,22 @@ def FindHaloStars(dsnames):
         
         # Convert the 0s that amiga uses for the hosts of particles that aren't bound to
         # a halo to -1s and convert all other host IDs to their index in the tangos database
+        # If AHF has been used, correct amiga.grps to AHF IDs first.
         fid = {}
-        fid['0'] = -1
+        if not AHF:
+            fid['0'] = -1
+        else:
+            hostarr = hostarr-1
         for i in range(1,len(sim[int(ind)].halos[:])+1):
-            fid[str(sim[int(ind)][int(i)].finder_id)] = i
+            fval = sim[int(ind)][int(i)].finder_id
+            fid[str(fval)] = i
+
+        # If a halo exists in the halo catalog, but not in the tangos database, assign stars to 
+        # halo -1
+        for i in np.unique(hostarr):
+            if i not in fid:
+                fid[i] = -1
+
         dbhostarr = np.array([fid[str(x)] for x in hostarr])
         if not np.array_equal(ctarr,createtime[starinds]):
             print ('ERROR: the iords in this simulation are not used consistently')
