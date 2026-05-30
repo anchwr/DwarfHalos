@@ -13,9 +13,6 @@ Output: <sim>_stardata_<snapshot>.h5
 Usage:   python LocAtCreation_pool_rz.py <sim> optional:<nproc> 
 Example: python LocAtCreation_pool_rz.py r634 4 
 
-Includes an optional argument to specify number of processes to run with;
-default is 4. Note that this will get reduced if you've specified more 
-processes than you have snapshots to process. 
 '''
 
 import numpy as np
@@ -47,6 +44,7 @@ pform = 1   # If pform=1, script will assume that snapshots are located inside o
             # all located on the same level.
 IDkey = 'amiga.grp' # What ID keyword should be used to access halo IDs in pynbody (e.g., 'amiga.grp')?
 AHF = False # Did you construct your tangos db with AHF (rather than amiga)?
+dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db?
 
 dat = np.load(halostarsfile) # load in data
 halostars = dat[0]
@@ -55,7 +53,7 @@ createtime = dat[1]
 # Grab times for all available snapshots
 tst = [] # name of snapshot
 tgyr = [] # time of snapshot in Gyr
-sim = db.get_simulation(cursim+'%')
+sim = db.get_simulation(cursim+'%'+dbkey+'%')
 ts = sim.timesteps
 for d in ts:
     tgyr.append(d.time_gyr)
