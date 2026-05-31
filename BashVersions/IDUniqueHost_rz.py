@@ -10,7 +10,7 @@ are written out to a file with a similar format to <sim>_halostarhosts.txt.
 Output: <sim>_uniquehalostarhosts.txt
 
 Usage:   python IDUniqueHost_rz.py <outpath> <simext>
-Example: python IDUniqueHost_rz.py /home/awright/dwarf_stellar_halos/r431/ .romulus25.3072g1HsbBH
+Example: python IDUniqueHost_rz.py /home/awright/dwarf_stellar_halos/r431/ r431.romulus25.3072g1HsbBH
 
 Note that this is currently set up to accommodate the phantoms that rockstar 
 generates when it temporarily loses track of a halo, which slows it down quite a bit. 
@@ -32,7 +32,7 @@ else:
     ext = str(sys.argv[2])
 
 cursim = outpath.split('/')[-2]
-sim = db.get_simulation(cursim+'%'+ext+'%')
+sim = db.get_simulation('%'+ext+'%')
 
 d = collections.defaultdict(list)
 

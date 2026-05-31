@@ -3,6 +3,7 @@ echo $1 # single command line argument is the name of the simulation - whatever 
 
 simpath='/data/REPOSITORY/romulus_zooms/' # What's the root directory for these simulations?
 outpath='/home/awright/dwarf_stellar_halos/'$1'/' # Where do you want your outputs to go? Not a good idea to change the final folder from $1
+scriptpath='/home/awright/DwarfHalos/' # Where do the scripts live?
 nproc=4 # How many processes do you want to run LocAtCreation on?
 idkey='amiga.grp' # What ID keyword should be used to access halo IDs in pynbody (e.g., 'amiga.grp')?
 pathformat=1 # What does your file hierarchy look like? If pathformat=1, we will assume snapshots are located in snapshot folders
@@ -18,14 +19,16 @@ if [ ! -f $outpath ]; then # if output directory doesn't exist, make it
     mkdir $outpath
 fi
 
-if [$pathformat==1]; then
+if [ $pathformat -eq 1 ]; then
     snappath=$simpath$spec'/'$spec'.'$finstep'/'$spec'.'$finstep
-elif [$pathformat==2]; then
+elif [ $pathformat -eq 2 ]; then
     snappath=$simpath$spec'/'$spec'.'$finstep
 else
     echo 'pathformat value not understood'
     exit 1
 fi
+
+cd $scriptpath
 
 # Run steps 1-5
 echo 'Step 1: grabbing star particle formation information'

@@ -52,8 +52,8 @@ else:
     pform = int(sys.argv[5])
     AHF = str2bool(sys.argv[6])
 
-cursim = simpath.split('/')[-1].split('.')[0]
-ext = simpath.split('/')[-1].split('.')[1]
+cursim = simpath.split('/')[-2].split('.')[0]
+ext = simpath.split('/')[-2].split('.')[1]
 halostarsfile = outpath+cursim+'_tf.npy'
 
 dat = np.load(halostarsfile) # load in data
@@ -67,7 +67,10 @@ sim = db.get_simulation(cursim+'%'+ext+'%')
 ts = sim.timesteps
 for d in ts:
     tgyr.append(d.time_gyr)
-    tst.append(d.extension.split('/')[0])
+    if '/' in d.extension:
+        tst.append(d.extension.split('/')[0])
+    else:
+        tst.append(d.extension)
 tgyr = np.array(tgyr)
 tst = np.array(tst)
 sortord = np.argsort(tgyr)

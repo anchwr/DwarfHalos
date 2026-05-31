@@ -51,7 +51,7 @@ def GrabHosts(fname):
         idlist.extend(f['particle_IDs'][:])
         pplist.extend(f['particle_positions'][:])
         ctlist.extend(f['particle_creation_times'][:])
-        lochostlist = [np.string_(hd[str(int(t))+','+str(int(h))]) for t,h in zip(tst,hst)]
+        lochostlist = [np.bytes_(hd[str(int(t))+','+str(int(h))]) for t,h in zip(tst,hst)]
         ghlist.extend(lochostlist)
         lhlist.extend(hst)
         tslist.extend(tst)
