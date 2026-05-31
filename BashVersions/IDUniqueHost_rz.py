@@ -9,13 +9,13 @@ are written out to a file with a similar format to <sim>_halostarhosts.txt.
 
 Output: <sim>_uniquehalostarhosts.txt
 
-Usage:   python IDUniqueHost_rz.py <outpath>
-Example: python IDUniqueHost_rz.py /home/awright/dwarf_stellar_halos/r431/
+Usage:   python IDUniqueHost_rz.py <outpath> <simext>
+Example: python IDUniqueHost_rz.py /home/awright/dwarf_stellar_halos/r431/ .romulus25.3072g1HsbBH
 
 Note that this is currently set up to accommodate the phantoms that rockstar 
 generates when it temporarily loses track of a halo, which slows it down quite a bit. 
 If you're only ever going to be using it with other types of merger
-trees, it can be simplified.
+trees (and don't intend to add your own phantoms!), it can be simplified.
 '''
 
 import numpy as np
@@ -24,14 +24,15 @@ from astropy.table import Table
 import collections
 import sys
 
-if len(sys.argv) != 2:
-    print ('Usage: python writeouthosts_rz.py <outpath>')
+if len(sys.argv) != 3:
+    print ('Usage: python writeouthosts_rz.py <outpath> <simext>')
     sys.exit()
 else:
     outpath = str(sys.argv[1])
+    ext = str(sys.argv[2])
 
 cursim = outpath.split('/')[-2]
-sim = db.get_simulation(cursim+'%')
+sim = db.get_simulation(cursim+'%'+ext+'%')
 
 d = collections.defaultdict(list)
 

@@ -38,7 +38,7 @@ echo 'Step 3: writing out new star hosts at each snapshot'
 python writeouthosts_rz.py $outpath
 
 echo 'Step 4: identifying a unique ID for each halo that hosts a new star'
-python IDUniqueHost_rz.py $outpath
+python IDUniqueHost_rz.py $outpath $spec
 
 echo 'Step 5: writing out data'
 python StoreUniqueHostID_rz.py $outpath

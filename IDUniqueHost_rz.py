@@ -17,7 +17,7 @@ by e.g., changing the paths or adding a path CL argument. It is also
 designed to accommodate the phantoms that rockstar generates when it
 temporarily loses track of a halo, which slows it down quite a bit. 
 If you're only ever going to be using it with other types of merger
-trees, it can be simplified.
+trees (and don't intend to add your own phantoms!), it can be simplified.
 '''
 
 import numpy as np

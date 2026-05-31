@@ -52,7 +52,8 @@ else:
     pform = int(sys.argv[5])
     AHF = str2bool(sys.argv[6])
 
-cursim = simpath.split('/')[-2].split('.')[0]
+cursim = simpath.split('/')[-1].split('.')[0]
+ext = simpath.split('/')[-1].split('.')[1]
 halostarsfile = outpath+cursim+'_tf.npy'
 
 dat = np.load(halostarsfile) # load in data
@@ -62,7 +63,7 @@ createtime = dat[1]
 # Grab times for all available snapshots
 tst = [] # name of snapshot
 tgyr = [] # time of snapshot in Gyr
-sim = db.get_simulation(cursim+'%')
+sim = db.get_simulation(cursim+'%'+ext+'%')
 ts = sim.timesteps
 for d in ts:
     tgyr.append(d.time_gyr)
