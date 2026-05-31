@@ -32,12 +32,14 @@ if len(sys.argv) != 2:
 else:
     cursim = str(sys.argv[1])
 
-sim = db.get_simulation(cursim+'%')
-
-d = collections.defaultdict(list)
-
 hsfile = '/Users/Anna/Research/Outputs/M33Analogs/MM/'+cursim+'/'+cursim+'_halostarhosts.txt'
 ofile = '/Users/Anna/Research/Outputs/M33Analogs/MM/'+cursim+'/'+cursim+'_uniquehalostarhosts.txt'
+dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
+              # that starts with cursim, you can set dbkey=''
+
+sim = db.get_simulation(cursim+'%'+dbkey+'%')
+
+d = collections.defaultdict(list)
 
 def checkmatch_p(step,halo,hid,disp):
     '''

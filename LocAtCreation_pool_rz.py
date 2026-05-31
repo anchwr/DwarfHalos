@@ -44,7 +44,8 @@ pform = 1   # If pform=1, script will assume that snapshots are located inside o
             # all located on the same level.
 IDkey = 'amiga.grp' # What ID keyword should be used to access halo IDs in pynbody (e.g., 'amiga.grp')?
 AHF = False # Did you construct your tangos db with AHF (rather than amiga)?
-dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db?
+dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
+              # that starts with cursim, you can set dbkey=''
 
 dat = np.load(halostarsfile) # load in data
 halostars = dat[0]
