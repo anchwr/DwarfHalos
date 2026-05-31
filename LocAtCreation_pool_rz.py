@@ -143,7 +143,7 @@ def FindHaloStars(dsnames):
                 fid[i] = -1
                 
         dbhostarr = np.array([fid[str(x)] for x in hostarr])
-        if not np.array_equal(ctarr,createtime[starinds]):
+        if not np.allclose(ctarr,createtime[starinds],atol=1e-14):
             print ('ERROR: the iords in this simulation are not used consistently')
             exit()
 
