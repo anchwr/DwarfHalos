@@ -140,8 +140,8 @@ def FindHaloStars(dsnames):
         # If a halo exists in the halo catalog, but not in the tangos database, assign stars to 
         # halo -1
         for i in np.unique(hostarr):
-            if i not in fid:
-                fid[i] = -1
+            if str(i) not in fid:
+                fid[str(i)] = -1
                 
         dbhostarr = np.array([fid[str(x)] for x in hostarr])
         if not np.allclose(ctarr,createtime[starinds],atol=1e-14):
