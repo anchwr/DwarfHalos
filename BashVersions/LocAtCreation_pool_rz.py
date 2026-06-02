@@ -143,6 +143,7 @@ def FindHaloStars(dsnames):
             fid['0'] = -1
         else:
             hostarr = hostarr-1
+            fid['-2'] = -1
         for i in range(1,len(sim[int(ind)].halos[:])+1):
             fval = sim[int(ind)][int(i)].finder_id
             fid[str(fval)] = i
