@@ -32,18 +32,18 @@ cd $scriptpath
 
 # Run steps 1-5
 echo 'Step 1: grabbing star particle formation information'
-python GrabTF_rz.py $snappath $outpath
+python GrabTF_rz.py $snappath $outpath || { echo "Fatal error occurred" >&2; exit 1; }
 
 echo 'Step 2: finding locations of star particles at birth'
-python LocAtCreation_pool_rz.py $simpath$spec'/' $outpath $nproc $idkey $pathformat $AHF
+python LocAtCreation_pool_rz.py $simpath$spec'/' $outpath $nproc $idkey $pathformat $AHF || { echo "Fatal error occurred" >&2; exit 1; }
 
 echo 'Step 3: writing out new star hosts at each snapshot'
-python writeouthosts_rz.py $outpath
+python writeouthosts_rz.py $outpath || { echo "Fatal error occurred" >&2; exit 1; }
 
 echo 'Step 4: identifying a unique ID for each halo that hosts a new star'
-python IDUniqueHost_rz.py $outpath $spec
+python IDUniqueHost_rz.py $outpath $spec || { echo "Fatal error occurred" >&2; exit 1; }
 
 echo 'Step 5: writing out data'
-python StoreUniqueHostID_rz.py $outpath
+python StoreUniqueHostID_rz.py $outpath || { echo "Fatal error occurred" >&2; exit 1; }
 
 echo 'Done!'
