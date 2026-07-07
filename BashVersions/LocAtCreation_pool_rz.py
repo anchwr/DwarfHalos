@@ -145,8 +145,9 @@ def FindHaloStars(dsnames):
             hostarr = hostarr-1
             fid['-2'] = -1
         for i in range(1,len(sim[int(ind)].halos[:])+1):
-            fval = sim[int(ind)][int(i)].finder_id
-            fid[str(fval)] = i
+            if isinstance(sim[int(ind)][int(i)],db.core.halo.Halo): # make sure this halo actually has an entry
+                fval = sim[int(ind)][int(i)].finder_id
+                fid[str(fval)] = i
 
         # If a halo exists in the halo catalog, but not in the tangos database, assign stars to 
         # halo -1
