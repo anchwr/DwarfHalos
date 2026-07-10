@@ -57,26 +57,35 @@ fsize = 16
 plt.rcParams['xtick.labelsize'] = fsize
 plt.rcParams['ytick.labelsize'] = fsize
 
-if len(sys.argv) != 2:
-    print ('Usage: python CircularityCalculation.py <sim>')
+Lread = False
+
+if len(sys.argv) < 2:
+    print ('Usage: python CircularityCalculation.py <sim> <opt:Lx Ly Lz>')
     sys.exit()
 else:
     cursim = str(sys.argv[1])
+    if len(sys.argv) == 5:
+        L = np.array([float(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4])])
+        Lread = True
+    elif len(sys.argv) != 2:
+        print ('Usage: python CircularityCalculation.py <sim> <opt:Lx Ly Lz>')
+        sys.exit()        
 
 am_method = 'young_stars' # 'young_stars': use stars with ages < ysage Myr to ID AM vector
                           # 'gas': use gas with T<gastemp K to ID AM vector
 halolim = 50 # how far from the center of the galaxy should your plot go?
 hid = 1 # What is the amiga.grp ID of the halo we're centering on? Almost always 1 for MMs
-disklim = 10 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
+disklim = 0 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
 ysage = 25 # We will use stars with age<ysage Myr to calculate AM if am_method='young_stars'
 gastemp = 1e3 # temperature below which to use gas for AM calc if am_method='gas'
 savecirc = True # Are you ready to save the circularity values to your hdf5 file?
 circ_method = ['Stinson_W24','Abadi_W26'] # options are ['Stinson','Stinson_W24','Abadi','Abadi_W26'] - note order
 machine = 'mogget'
+makeplot=True
 
 if machine=='mogget':
     opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # Where should outputs be saved?
-    datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # Where does your allhalostardata hdf5 file live?
+    datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata hdf5 file live?
     simdir = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
 elif machine=='emu':
     opath = '/home/awright/dwarf_stellar_halos/'+cursim+'/'
@@ -86,13 +95,16 @@ elif machine=='emu':
 age_color_map = sns.blend_palette(("black", "#16263B", "#386094", "#4575b4", "#4daf4a","#FFD24D", "darkorange"), as_cmap=True)
 grav_const = 4.3*10**-6 # grav const in kpc*km^2/Msol*s^2
 
-keyadd = 'W26'
-if ysage != 25 and am_method=='young_stars':
-    keyadd += '_ys'+str(ysage)
-if disklim != 10:
-    keyadd += '_dl'+str(disklim)
-if gastemp != 1e3 and am_method=='gas':
-    keyadd += '_gt'+str(gastemp)
+if Lread:
+    keyadd = '_read'
+else:
+    keyadd = ''
+    if ysage != 25 and am_method=='young_stars':
+        keyadd += '_ys'+str(ysage)
+    if disklim != 10:
+        keyadd += '_dl'+str(disklim)
+    if gastemp != 1e3 and am_method=='gas':
+        keyadd += '_gt'+str(gastemp)
 
 def Stinson_W24(allstars,stars_r):
     # Calculate z-component of angular momentum
@@ -108,11 +120,11 @@ def Stinson_W24(allstars,stars_r):
     jc = vc*stars_r
     return jz/jc
 
-def Abadi_W26(allstars,stars_r,makeplot=False):
+def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
     # if makeplot=True, makes and saves a plot of the corrected E-j_z of the star particles
     # and the maximum E-j_z curve based on the midplane potential (cf Abadi+03)
 
-    radii = np.logspace(-1,np.log10(halolim+30),500)
+    radii = np.logspace(-1,np.log10(halolim+30),nbins)
 
     # Combination of pynbody's midplane_rot_curve and midplane_potential functions
     # However, note we use minimum potential from sampled points, as this will be better for
@@ -155,10 +167,19 @@ def Abadi_W26(allstars,stars_r,makeplot=False):
     ecmin = np.array([0.5*(v*np.sqrt(grav_const))**2 + p*grav_const for v,p in zip(vc,phimax)])
     ecmax = np.array([0.5*(v*np.sqrt(grav_const))**2 + p*grav_const for v,p in zip(vc,phimin)])
     jc = np.array([r*v*np.sqrt(grav_const) for r,v in zip(radii,vc)])
-    jcirc = make_interp_spline(ec,jc)
-    ecirc = make_interp_spline(jc,ec)
-    jcirc_min = make_interp_spline(ecmin,jc)
-    jcirc_max = make_interp_spline(ecmax,jc)
+
+    # Mask out problematic values, but throw an error if this is a lot of the array
+    ecmask = ec<np.maximum.accumulate(ec)
+    ecmaxmask = ecmax<np.maximum.accumulate(ecmax)
+    ecminmask = ecmin<np.maximum.accumulate(ecmin)
+    # print (len(ec[ecdiff<0])/len(ec),len(ecmin[ecmindiff<0])/len(ecmin),len(ecmax[ecmaxdiff<0])/len(ecmax))
+    if (len(ec[~ecmask])/len(ec))<0.85 or (len(ecmin[~ecminmask])/len(ecmin))<0.85 or (len(ecmax[~ecmaxmask])/len(ecmax))<0.85:
+        print ('It looks like there is something wrong with your circular energy array. Maybe the bins are too fine?')
+        exit()
+    jcirc = make_interp_spline(ec[~ecmask],jc[~ecmask])
+    ecirc = make_interp_spline(jc[~ecmask],ec[~ecmask])
+    jcirc_min = make_interp_spline(ecmin[~ecminmask],jc[~ecminmask])
+    jcirc_max = make_interp_spline(ecmax[~ecmaxmask],jc[~ecmaxmask])
 
     # Correct particle energies to most-bound particle
     offset = min(h[hid].s['te'])-ecirc(0)
@@ -189,12 +210,16 @@ s.physical_units()
 
 # get AM vector
 pynbody.analysis.halo.center(h[hid]) # this centers both spatially and in terms of velocity; we are moving the entire snapshot
-if am_method == 'gas':
-    amsp = h[hid].g[pynbody.filt.Sphere(disklim)][pynbody.filt.LowPass('temp',str(gastemp)+' K')]
+
+if not Lread:
+    if am_method == 'gas':
+        amsp = h[hid].g[pynbody.filt.Sphere(disklim)][pynbody.filt.LowPass('temp',str(gastemp)+' K')]
+    else:
+        amsp = h[hid].s[pynbody.filt.Sphere(disklim)][pynbody.filt.LowPass('age',str(ysage)+' Myr')]
+    print ('Particles being used to calculate AM vector: ',len(amsp['iord']))
+    L = pynbody.analysis.angmom.ang_mom_vec(amsp)
 else:
-    amsp = h[hid].s[pynbody.filt.Sphere(disklim)][pynbody.filt.LowPass('age',str(ysage)+' Myr')]
-print ('Particles being used to calculate AM vector: ',len(amsp['iord']))
-L = pynbody.analysis.angmom.ang_mom_vec(amsp)
+    print ('Angular momentum vector supplied by user.')
 norm_L = L/np.sqrt((L**2).sum())
 print ('AM vector:',norm_L)
 
@@ -216,7 +241,7 @@ if 'Abadi' in circ_method:
     pynbody.analysis.morphology.estimate_jcirc_from_energy(allstars,particles_per_bin=100,quantile=0.95)
     circ.append(allstars['j'][:,2]/allstars['j_circ'])
 if 'Abadi_W26' in circ_method:
-    jzbyjc = Abadi_W26(allstars,stars_r,makeplot=True)
+    jzbyjc = Abadi_W26(allstars,stars_r,makeplot=makeplot)
     circ.append(jzbyjc)
 
 # Make radius-circularity-age figure
@@ -276,6 +301,7 @@ f3 = plt.figure(figsize=(9,10))
 pynbody.plot.stars.render(h[hid].s,dynamic_range=3,width=2*w)
 plt.xlabel('kpc',fontsize=20)
 plt.ylabel('kpc',fontsize=20)
+plt.axhline(0,color='cyan')
 plt.savefig(opath+cursim+'_stars_sideon_'+am_method+keyadd+'.png',bbox_inches='tight')
 plt.close()
 
@@ -285,13 +311,14 @@ norm = mpl.colors.Normalize(vmin=ml, vmax=mh)
 pynbody.plot.sph.image(h[hid].g,units="g cm**-2",width = 2*w,cmap='cubehelix',vmin=10**ml,vmax=10**mh,show_cbar=False)
 plt.xlabel('kpc',fontsize=20)
 plt.ylabel('kpc',fontsize=20)
+plt.axhline(0,color='cyan')
 plt.savefig(opath+cursim+'_gas_sideon_'+am_method+keyadd+'.png',bbox_inches='tight')
 plt.close()
 
 # If you're happy with the AM vector you've calculated, 
 # write out your data (but make sure to read in the old data first)
 if savecirc == True:
-    ofile = datapath+cursim+'_allhalostardata_circ.h5'
+    ofile = opath+cursim+'_allhalostardata_circ.h5'
     print ('Saving circularity to '+ofile)
     with h5py.File(datapath+cursim+'_allhalostardata.h5','r') as f:
         hostids = f['host_IDs'][:]
