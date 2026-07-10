@@ -90,7 +90,7 @@ datapath = '/home/awright/dwarf_stellar_halos/'+cursim+'/' # Where does your all
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
             # all located on the same level.
-spec = '.romulus25.3072g1HsbBH'
+spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
 st = 4096 # snapshot number - note that this is currently assumed to be for the z=0 snapshot
 dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
               # that starts with cursim, you can set dbkey=''
@@ -208,8 +208,12 @@ def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
 
 if pform == 1:
     simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)+'/'+cursim+spec+'.'+str(st).zill(6)
-else:
+elif pform ==2:
     simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)
+else:
+    print ('Error: Path format not understood')
+    sys.exit()
+    
 s = pynbody.load(simloc)
 h = s.halos()
 s.physical_units()

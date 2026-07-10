@@ -38,7 +38,8 @@ else:
 
 opath = '/Users/Anna/Research/Outputs/M33Analogs/MM/'+cursim+'/'
 halostarsfile = '/Users/Anna/Research/Outputs/M33Analogs/'+cursim+'_tf.npy'
-simpath = '/Volumes/Audiobooks/RomZooms/'+cursim+'.romulus25.3072g1HsbBH/'
+spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
+simpath = '/Volumes/Abhorsen/Data/RomZooms/'+cursim+spec+'/' # where does your simulation live?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
             # all located on the same level.

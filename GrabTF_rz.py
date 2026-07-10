@@ -25,20 +25,22 @@ else:
     cursim = str(sys.argv[1])
 
 ofile = '/Users/Anna/Research/Outputs/M33Analogs/'+cursim+'_tf.npy'
-simpath = '/Volumes/Audiobooks/RomZooms/'+cursim+'.romulus25.3072g1HsbBH/'
+spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
+simpath = '/Volumes/Abhorsen/Data/RomZooms/'+cursim+spec+'/' # where does your simulation live?
+st = 4096 # What snapshot are you running this at?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
             # all located on the same level.
 
 if pform == 1:
-    snapshotpath = simpath+simpath.split('/')[-2]+'.004096/'+simpath.split('/')[-2]+'.004096'
-elif pform == 2:
-    snapshotpath = simpath+simpath.split('/')[-2]+'.004096'
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)+'/'+cursim+spec+'.'+str(st).zill(6)
+elif pform ==2:
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)
 else:
     print ('Error: Path format not understood')
     sys.exit()
 
-s = pynbody.load(snapshotpath)
+s = pynbody.load(simloc)
 tf = s.s['tform'][s.s['tform']>0].in_units('Gyr')
 iord = s.s['iord'][s.s['tform']>0]
 
