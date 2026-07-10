@@ -19,9 +19,11 @@ the angular momentum vector, you can either use the AM of the stars
 with ages < <ysage> Myr or the gas with T< <gastemp> K within a radius 
 of <disklim>. To calculate circularity, you can either use the method 
 from Stinson+10 ('Stinson' or 'Stinson_W24') or the method from Abadi+03 
-('Abadi'). You can select as many methods at a time as you want.
+('Abadi' or 'Abadi_W26'). You can select as many methods at a time as you want.
 'Stinson' will give you pynbody's implementation of Stinson+10, 
 while 'Stinson_W24' will give you the simpler version I used in Wright+24.
+'Abadi' will give you pynbody's implementation of Abadi+03, while 'Abadi_W26'
+will give you the more complicated version I used in Wright+26.
 Ideally, you want a disk to be very clear as a distribution of young 
 stars at small radii with a circularity somewhere around 1 so that it's 
 easy to later make clear cuts for stellar halo stars (e.g., for well-behaved 
@@ -74,23 +76,24 @@ else:
 am_method = 'young_stars' # 'young_stars': use stars with ages < ysage Myr to ID AM vector
                           # 'gas': use gas with T<gastemp K to ID AM vector
 halolim = 50 # how far from the center of the galaxy should your plot go?
-hid = 1 # What is the amiga.grp ID of the halo we're centering on? Almost always 1 for MMs
-disklim = 0 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
+hid = 1 # What is the ID of the halo we're centering on? Almost always 1 for MMs
+disklim = 10 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
 ysage = 25 # We will use stars with age<ysage Myr to calculate AM if am_method='young_stars'
 gastemp = 1e3 # temperature below which to use gas for AM calc if am_method='gas'
 savecirc = True # Are you ready to save the circularity values to your hdf5 file?
 circ_method = ['Stinson_W24','Abadi_W26'] # options are ['Stinson','Stinson_W24','Abadi','Abadi_W26'] - note order
-machine = 'mogget'
-makeplot=True
+makeplot=True # Should the E-Jz plot be saved?
 
-if machine=='mogget':
-    opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # Where should outputs be saved?
-    datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata hdf5 file live?
-    simdir = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
-elif machine=='emu':
-    opath = '/home/awright/dwarf_stellar_halos/'+cursim+'/'
-    datapath = '/home/awright/dwarf_stellar_halos/'+cursim+'/'
-    simdir = '/data/REPOSITORY/romulus_zooms/'
+simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
+opath = '/home/awright/dwarf_stellar_halos/'+cursim+'/' # Where do you want outputs from this script to be written?
+datapath = '/home/awright/dwarf_stellar_halos/'+cursim+'/' # Where does your allhalostardata file live?
+pform = 1   # If pform=1, script will assume that snapshots are located inside of
+            # snapshot folders. If pform=2, it will assume that snapshots are
+            # all located on the same level.
+spec = '.romulus25.3072g1HsbBH'
+st = 4096 # snapshot number - note that this is currently assumed to be for the z=0 snapshot
+dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
+              # that starts with cursim, you can set dbkey=''
 
 age_color_map = sns.blend_palette(("black", "#16263B", "#386094", "#4575b4", "#4daf4a","#FFD24D", "darkorange"), as_cmap=True)
 grav_const = 4.3*10**-6 # grav const in kpc*km^2/Msol*s^2
@@ -172,7 +175,6 @@ def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
     ecmask = ec<np.maximum.accumulate(ec)
     ecmaxmask = ecmax<np.maximum.accumulate(ecmax)
     ecminmask = ecmin<np.maximum.accumulate(ecmin)
-    # print (len(ec[ecdiff<0])/len(ec),len(ecmin[ecmindiff<0])/len(ecmin),len(ecmax[ecmaxdiff<0])/len(ecmax))
     if (len(ec[~ecmask])/len(ec))<0.85 or (len(ecmin[~ecminmask])/len(ecmin))<0.85 or (len(ecmax[~ecmaxmask])/len(ecmax))<0.85:
         print ('It looks like there is something wrong with your circular energy array. Maybe the bins are too fine?')
         exit()
@@ -204,7 +206,11 @@ def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
 
     return circ
 
-s = pynbody.load(simdir+cursim+'.romulus25.3072g1HsbBH/'+cursim+'.romulus25.3072g1HsbBH.004096/'+cursim+'.romulus25.3072g1HsbBH.004096')
+if pform == 1:
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)+'/'+cursim+spec+'.'+str(st).zill(6)
+else:
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)
+s = pynbody.load(simloc)
 h = s.halos()
 s.physical_units()
 
@@ -245,7 +251,7 @@ if 'Abadi_W26' in circ_method:
     circ.append(jzbyjc)
 
 # Make radius-circularity-age figure
-sim = db.get_simulation('%'+cursim+'%')
+sim = db.get_simulation(cursim+'%'+dbkey+'%')
 for ctr,cm in enumerate(circ):
     df = pd.DataFrame({'radius':stars_r, 'circularity':cm, 'age':(sim[-1].time_gyr-allstars['tform'].in_units('Gyr'))/sim[-1].time_gyr})
     fig = plt.figure(figsize=(8,8),dpi=120)
