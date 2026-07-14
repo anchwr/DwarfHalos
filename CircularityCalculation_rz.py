@@ -80,7 +80,7 @@ hid = 1 # What is the ID of the halo we're centering on? Almost always 1 for MMs
 disklim = 10 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
 ysage = 25 # We will use stars with age<ysage Myr to calculate AM if am_method='young_stars'
 gastemp = 1e3 # temperature below which to use gas for AM calc if am_method='gas'
-savecirc = True # Are you ready to save the circularity values to your hdf5 file?
+savecirc = False # Are you ready to save the circularity values to your hdf5 file?
 circ_method = ['Stinson_W24','Abadi_W26'] # options are ['Stinson','Stinson_W24','Abadi','Abadi_W26'] - note order
 makeplot=True # Should the E-Jz plot be saved?
 
@@ -92,7 +92,7 @@ pform = 1   # If pform=1, script will assume that snapshots are located inside o
             # all located on the same level.
 spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
 st = 4096 # snapshot number - note that this is currently assumed to be for the z=0 snapshot
-dbkey = 'si2' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
+dbkey = '' # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
               # that starts with cursim, you can set dbkey=''
 
 age_color_map = sns.blend_palette(("black", "#16263B", "#386094", "#4575b4", "#4daf4a","#FFD24D", "darkorange"), as_cmap=True)
@@ -207,13 +207,13 @@ def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
     return circ
 
 if pform == 1:
-    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)+'/'+cursim+spec+'.'+str(st).zill(6)
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)+'/'+cursim+spec+'.'+str(st).zfill(6)
 elif pform ==2:
-    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)
 else:
     print ('Error: Path format not understood')
     sys.exit()
-    
+
 s = pynbody.load(simloc)
 h = s.halos()
 s.physical_units()

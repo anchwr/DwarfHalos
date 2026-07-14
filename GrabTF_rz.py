@@ -33,9 +33,9 @@ pform = 1   # If pform=1, script will assume that snapshots are located inside o
             # all located on the same level.
 
 if pform == 1:
-    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)+'/'+cursim+spec+'.'+str(st).zill(6)
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)+'/'+cursim+spec+'.'+str(st).zfill(6)
 elif pform ==2:
-    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zill(6)
+    simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)
 else:
     print ('Error: Path format not understood')
     sys.exit()
