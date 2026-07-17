@@ -9,9 +9,9 @@ Outputs: plots showing orbital circularity of stars as a function of
          radius and shaded by stellar ages
          plots showing face-on and edge-on images of gas density and 
          stars for the chosen AM method
-         <sim>_allhalostardata_circ.h5, which is a version of 
-         the allhalostardata hdf5 file with the circularity of
-         each star particle saved
+         <sim>_circ.h5, which includes particle_IDs,
+         the circularity of each star particle, and the angular momentum
+         vector that was used in the circularity calculation.
 
 There are several combinations of options you can use for this and 
 what works best may depend on the galaxy in question. To calculate
@@ -78,15 +78,15 @@ am_method = 'young_stars' # 'young_stars': use stars with ages < ysage Myr to ID
 halolim = 50 # how far from the center of the galaxy should your plot go?
 hid = 1 # What is the ID of the halo we're centering on? Almost always 1 for MMs
 disklim = 10 # How far out should we check for young stars or cool gas for AM calc (in kpc)?
-ysage = 25 # We will use stars with age<ysage Myr to calculate AM if am_method='young_stars'
+ysage = 250 # We will use stars with age<ysage Myr to calculate AM if am_method='young_stars'
 gastemp = 1e3 # temperature below which to use gas for AM calc if am_method='gas'
-savecirc = False # Are you ready to save the circularity values to your hdf5 file?
+savecirc = True # Are you ready to save the circularity values to your hdf5 file?
 circ_method = ['Stinson_W24','Abadi_W26'] # options are ['Stinson','Stinson_W24','Abadi','Abadi_W26'] - note order
 makeplot=True # Should the E-Jz plot be saved?
 
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
-opath = '/home/awright/dwarf_stellar_halos/'+cursim+'/' # Where do you want outputs from this script to be written?
-datapath = '/home/awright/dwarf_stellar_halos/'+cursim+'/' # Where does your allhalostardata file live?
+opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # Where do you want outputs from this script to be written?
+datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata file live?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
             # all located on the same level.
@@ -255,7 +255,7 @@ if 'Abadi_W26' in circ_method:
     circ.append(jzbyjc)
 
 # Make radius-circularity-age figure
-sim = db.get_simulation(cursim+'%'+dbkey+'%')
+sim = db.get_simulation('%'+cursim+'%'+dbkey+'%')
 for ctr,cm in enumerate(circ):
     df = pd.DataFrame({'radius':stars_r, 'circularity':cm, 'age':(sim[-1].time_gyr-allstars['tform'].in_units('Gyr'))/sim[-1].time_gyr})
     fig = plt.figure(figsize=(8,8),dpi=120)
@@ -328,24 +328,15 @@ plt.close()
 # If you're happy with the AM vector you've calculated, 
 # write out your data (but make sure to read in the old data first)
 if savecirc == True:
-    ofile = opath+cursim+'_allhalostardata_circ.h5'
+    ofile = opath+cursim+'_circ.h5'
     print ('Saving circularity to '+ofile)
     with h5py.File(datapath+cursim+'_allhalostardata.h5','r') as f:
-        hostids = f['host_IDs'][:]
         partids = f['particle_IDs'][:]
-        pct = f['particle_creation_times'][:]
-        ph = f['particle_hosts'][:]
-        pp = f['particle_positions'][:]
-        ts = f['timestep_location'][:]
     
     if np.array_equal(partids,allstars['iord']): # if these are the same, we don't need to do anything else
         with h5py.File(ofile,'w') as f:
             f.create_dataset('particle_IDs', data=partids)
-            f.create_dataset('particle_positions', data=pp)
-            f.create_dataset('particle_creation_times', data=pct)
-            f.create_dataset('timestep_location', data=ts)
-            f.create_dataset('particle_hosts', data=ph)
-            f.create_dataset('host_IDs', data=hostids, dtype="S10")
+            f.create_dataset('angmom_vec',data=norm_L)
             for ctr,cm in enumerate(circ):
                 f.create_dataset(circ_method[ctr]+'_circ', data=np.array(cm))
     else: # If they're not, re-order sim data so that the stars are in the same order as the hdf5 file 
@@ -366,11 +357,7 @@ if savecirc == True:
 
         with h5py.File(ofile,'w') as f:
             f.create_dataset('particle_IDs', data=partids)
-            f.create_dataset('particle_positions', data=pp)
-            f.create_dataset('particle_creation_times', data=pct)
-            f.create_dataset('timestep_location', data=ts)
-            f.create_dataset('particle_hosts', data=ph)
-            f.create_dataset('host_IDs', data=hostids, dtype="S10")
+            f.create_dataset('angmom_vec',data=norm_L)
             for ctr,cm in enumerate(circ):
                 f.create_dataset(circ_method[ctr]+'_circ', data=np.array(cm)[np.ma.compressed(res)])
 
