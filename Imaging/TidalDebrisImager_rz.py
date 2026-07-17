@@ -4,13 +4,13 @@ circularity, [Fe/H], and [O/Fe]. Also creates plots for all in situ
 material and all ex situ material.
 
 Usage:   python TidalDebrisImager_rz.py <sim> optional:<filter>
-Example: python SaveLums_rz.py r634 Roman_F129
+Example: python TidalDebrisImager_rz.py r634 Roman_F129
 
 If you have already run SaveLums_rz.py to generate luminosities in 
 various bands using FSPS, you can read these in and use them here.
 If not, you can try using pynbody's built-in SSP tables. However,
 it looks like zero points haven't been included for a lot of the 
-bands, so the conversion from magnitudes to luminosities may fail.
+non-AB bands, so the conversion from magnitudes to luminosities may fail.
 '''
 
 import matplotlib as mpl
@@ -65,8 +65,7 @@ nstarlim = 100 # tidal debris must have at least nstarlim stars to be plotted in
 maxwid = 100 # maximum distance from the center of the main halo that you want to visualize
 
 readlum = True # Will you be reading the luminosities of individual star particles in from a file generated with FSPS?
-lumpath = '/Users/Anna/Research/Outputs/RomZooms/'+'r'+str(cursim)+'_luminosities.h5' # if so, put the path to the file here
-zpfile = 'FSPS_SolABMags.pkl' # file containing zero points for different bands
+lumpath = opath+'r'+str(cursim)+'_luminosities.h5' # if so, put the path to the file here
 
 FeSol = 0.0016 # What metallicity should be used for the Sun?
 
@@ -80,8 +79,6 @@ cmin = 0 # what's the lowest circularity you'd like to show?
 cmax = 1 # what's the highest circularity you'd like to show?
 
 if readlum:
-    with open(zpfile,'rb') as f:
-        BandSun = pickle.load(f)
     with h5py.File(lumpath,'r') as f:
         lum = f[fil][:]
 
@@ -117,13 +114,7 @@ s.rotate_x(90)
 allstars = s.s[s.s['tform'].in_units('Gyr')>0]
 
 # re-order to match hdf5 file if necessary
-if np.array_equal(partids,allstars['iord']):
-    mets = allstars['FeMassFrac']/FeSol
-    met2 = allstars['OxMassFrac']/allstars['FeMassFrac']
-    pos = allstars['pos']
-    if not readlum:
-        lum = allstars[fil+'_mag']
-else:
+if not np.array_equal(partids,allstars['iord']):
     allstarinds = allstars['iord']
     index = np.argsort(allstarinds)
     sorted_allstars = allstarinds[index]
@@ -132,13 +123,15 @@ else:
     mask = allstarinds[pindex] != partids
     res = np.ma.array(pindex,mask=mask)
     allstars = allstars[np.ma.compressed(res)]
-    mets = allstars[np.ma.compressed(res)]['FeMassFrac']/FeSol
-    met2 = allstars[np.ma.compressed(res)]['OxMassFrac']/allstars[np.ma.compressed(res)]['FeMassFrac']
-    pos = allstars[np.ma.compressed(res)]['pos']
-    if not readlum:
-        mag = allstars[fil+'_mag'][np.ma.compressed(res)]
-        norm = pynbody.analysis.luminosity.get_current_ssp_table().get_spectral_density_normalization(fil)
-        lum = 10**(-1*mag/2.5)*norm 
+
+if not readlum:
+    mag = allstars[fil+'_mag']
+    norm = pynbody.analysis.luminosity.get_current_ssp_table().get_spectral_density_normalization(fil)
+    lum = 10**(-1*mag/2.5)*norm 
+
+mets = allstars['FeMassFrac']/FeSol
+met2 = allstars['OxMassFrac']/allstars['FeMassFrac']
+pos = allstars['pos']
 
 # for each remnant with more than nstarlim star particles, make tidal debris images
 for i in uIDs:
