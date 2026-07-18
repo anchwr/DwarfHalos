@@ -3,7 +3,11 @@ Adapted from old powderday code
 
 Calculates luminosities of star particles in user-specified filters
 using FSPS with MIST isochrones. Note that you will need to have pyFSPS
-(https://python-fsps.readthedocs.io/en/latest/) installed. 
+(https://python-fsps.readthedocs.io/en/latest/) installed. You should also
+expect this script to take longer than most of the others in this pipeline.
+You can re-run this script if you decide you'd like to add more filters - 
+it will check for the existence of the output file and add new datasets to it 
+if it exists; just make sure to keep an eye on the file size!
 
 Output: <sim>_luminosities.h5
         Order of star particles should be identical to allhalostardata 
@@ -39,7 +43,7 @@ else:
     cursim = str(sys.argv[1])
     if len(sys.argv) == 3:
         n_processes = int(sys.argv[2])
-    else:
+    elif len(sys.argv) > 3:
         print ('Usage: python SaveLums_rz.py <sim> optional:<nproc> ')
         print ('Default is 4 processes')
         sys.exit()        
@@ -47,9 +51,9 @@ else:
 mform = 994 # formation mass of stars in Msol
 imf = 2 # FSPS IMF type - 2 is a Kroupa+01 IMF
 spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
-simpath = '/Volumes/Abhorsen/Data/RomZooms/'+cursim+spec+'/' # where does your simulation live?
-opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # where would you like this file to be written?
-datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # where does your allhalostardata file live?
+simpath = '/Volumes/Abhorsen/Data/RomZooms/' # where does your simulation live?
+opath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/'+cursim+'/' # where would you like this file to be written?
+datapath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/ahsdfiles/' # where does your allhalostardata file live?
 st = 4096 # What snapshot are you running this at? Assumed to be same as snapshot allhalostardata was generated for
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
@@ -63,8 +67,8 @@ filterlist = ['Roman_F062', 'Roman_F087', 'Roman_F106', 'Roman_F129', 'Roman_F15
 #filterlist = ['Euclid_VIS']
 
 sp = fsps.StellarPopulation() # initialize fsps object
-metleg = 'zlegend.mist.dat'
-zpfile = 'FSPS_SolABMags.pkl'
+metleg = '/Users/Anna/DwarfHalos/Imaging/zlegend.mist.dat'
+zpfile = '/Users/Anna/DwarfHalos/Imaging/FSPS_SolABMags.pkl'
 
 with open(zpfile,'rb') as f:
     BandSun = pickle.load(f)
@@ -199,7 +203,7 @@ if __name__ == '__main__':
 
         allstars_inhdf5 = ids[np.ma.compressed(res)]
 
-        assert(np.array_equal(partids,allstars_inhdf5['iord'])) # these had better be the same
+        assert(np.array_equal(partids,allstars_inhdf5)) # these had better be the same
 
         # now re-order luminosities
         orderedlumlist = orderedlumlist[np.ma.compressed(res),:]

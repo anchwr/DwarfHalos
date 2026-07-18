@@ -39,15 +39,15 @@ if len(sys.argv) < 2:
     sys.exit()
 else:
     cursim = str(sys.argv[1])
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         fil = str(sys.argv[2])
-    else:
+    elif len(sys.argv) > 3:
         print ('Usage: python SBMap_rz.py <sim> <opt:filter>')
         print ('Default filter is Roman_F129')
         sys.exit()       
 
-opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+str(cursim)+'/' # Where do you want outputs from this script to be written?
-datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata file live?
+opath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/'+str(cursim)+'/' # Where do you want outputs from this script to be written?
+datapath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/ahsdfiles/' # Where does your allhalostardata file live?
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
@@ -59,7 +59,7 @@ halo_lim = 100
 pixel_width = 1500
 
 readlum = True # Will you be reading the luminosities of individual star particles in from a file generated with FSPS?
-zpfile = 'FSPS_SolABMags.pkl' # file containing zero points for different bands
+zpfile = '/Users/Anna/DwarfHalos/Imaging/FSPS_SolABMags.pkl' # file containing zero points for different bands
 Lsol = 3.828*10**33 # luminosity of Sun in ergs/s
 sblow = 39
 sbhigh = 23

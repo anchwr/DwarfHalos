@@ -85,8 +85,8 @@ circ_method = ['Stinson_W24','Abadi_W26'] # options are ['Stinson','Stinson_W24'
 makeplot=True # Should the E-Jz plot be saved?
 
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
-opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+cursim+'/' # Where do you want outputs from this script to be written?
-datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata file live?
+opath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/'+cursim+'/' # Where do you want outputs from this script to be written?
+datapath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/ahsdfiles/' # Where does your allhalostardata file live?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
             # all located on the same level.

@@ -26,7 +26,7 @@ import tangos as db
 import math
 import matplotlib.gridspec as gridspec
 import sys
-import pickle
+import os
 
 fsize = 14
 
@@ -42,15 +42,15 @@ if len(sys.argv) < 2:
     sys.exit()
 else:
     cursim = str(sys.argv[1])
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         fil = str(sys.argv[2])
-    else:
+    elif len(sys.argv) > 3:
         print ('Usage: python TidalDebrisImager_rz.py <sim> <opt:filter>')
         print ('Default filter is Roman_F129')
         sys.exit()       
 
-opath = '/Users/Anna/Research/Outputs/M33analogs/MM/'+str(cursim)+'/' # Where do you want outputs from this script to be written?
-datapath = '/Users/Anna/Research/Outputs/M33analogs/MM/ahsdfiles/' # Where does your allhalostardata file live?
+opath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/'+str(cursim)+'/' # Where do you want outputs from this script to be written?
+datapath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/ahsdfiles/' # Where does your allhalostardata file live?
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
 pform = 1   # If pform=1, script will assume that snapshots are located inside of
             # snapshot folders. If pform=2, it will assume that snapshots are
@@ -65,7 +65,7 @@ nstarlim = 100 # tidal debris must have at least nstarlim stars to be plotted in
 maxwid = 100 # maximum distance from the center of the main halo that you want to visualize
 
 readlum = True # Will you be reading the luminosities of individual star particles in from a file generated with FSPS?
-lumpath = opath+'r'+str(cursim)+'_luminosities.h5' # if so, put the path to the file here
+lumpath = opath+str(cursim)+'_luminosities.h5' # if so, put the path to the file here
 
 FeSol = 0.0016 # What metallicity should be used for the Sun?
 
@@ -214,18 +214,15 @@ for i in uIDs:
                 artist00 = dsshow(df, dsh.Point("x", "y"), dsh.mean('circ_pd'), aspect='equal', norm='linear',vmin=cmin, vmax=cmax,cmap='seismic_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks(tlist)
                 ax1.set_xticks(tlist)
-                ax1.set_title('z',fontsize=fsize+2)
                 ax1.set_ylabel('[kpc]',fontsize=fsize)
             elif ctr == 1:
                 artist01 = dsshow(df, dsh.Point("y", "z"), dsh.mean('circ_pd'), aspect='equal', norm='linear',vmin=cmin, vmax=cmax,cmap='seismic_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks([])
                 ax1.set_xticks(tlist)
-                ax1.set_title('x',fontsize=fsize+2)
                 ax1.set_xlabel('[kpc]',fontsize=fsize)
             else:
                 artist02 = dsshow(df, dsh.Point("x", "z"), dsh.mean('circ_pd'), aspect='equal', norm='linear',vmin=cmin, vmax=cmax,cmap='seismic_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks([])
-                ax1.set_title('y',fontsize=fsize+2)
                 ax1.set_xticks(tlist)
             f3.add_subplot(ax1)
 
@@ -269,7 +266,7 @@ for i in uIDs:
         ax2 = plt.Subplot(f3,cbar_grid[0])
         cmap = plt.cm.viridis
         norm = mpl.colors.Normalize(vmin=mmin, vmax=mmax)
-        cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(mmin,mmax+0.1,1),orientation='vertical',label='[Fe/H]')
+        cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(mmin,mmax+0.1,0.5),orientation='vertical',label='[Fe/H]')
         f3.add_subplot(ax2)
 
         for ctr in range(0,3):
@@ -279,18 +276,15 @@ for i in uIDs:
                 artist00 = dsshow(df, dsh.Point("x", "y"), dsh.mean('alpha_pd'), aspect='equal', norm='linear',vmin=amin, vmax=amax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks(tlist)
                 ax1.set_xticks(tlist)
-                ax1.set_title('z',fontsize=fsize+2)
                 ax1.set_ylabel('[kpc]',fontsize=fsize)
             elif ctr == 1:
                 artist01 = dsshow(df, dsh.Point("y", "z"), dsh.mean('alpha_pd'), aspect='equal', norm='linear',vmin=amin, vmax=amax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks([])
                 ax1.set_xticks(tlist)
-                ax1.set_title('x',fontsize=fsize+2)
                 ax1.set_xlabel('[kpc]',fontsize=fsize)
             else:
                 artist02 = dsshow(df, dsh.Point("x", "z"), dsh.mean('alpha_pd'), aspect='equal', norm='linear',vmin=amin, vmax=amax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
                 ax1.set_yticks([])
-                ax1.set_title('y',fontsize=fsize+2)
                 ax1.set_xticks(tlist)
             f3.add_subplot(ax1)
 
@@ -298,7 +292,7 @@ for i in uIDs:
         ax2 = plt.Subplot(f3,cbar_grid[1])
         cmap = plt.cm.viridis
         norm = mpl.colors.Normalize(vmin=amin, vmax=amax)
-        cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(amin,amax+0.01,1),orientation='vertical',label='[O/Fe]')
+        cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(amin,amax+0.01,0.2),orientation='vertical',label='[O/Fe]')
         f3.add_subplot(ax2)
 
         plt.savefig(opath+cursim+'_'+i+'_fealpha.png',bbox_inches='tight',dpi=150)
@@ -313,6 +307,7 @@ isdf['z'] = pos[isAll][:,2]
 isdf['lum_pd'] = lum[isAll]
 isdf['alpha_pd'] = np.log10(met2[isAll])
 isdf['met_pd'] = np.log10(mets[isAll])
+isdf['circ_pd'] = circ[isAll]
 
 exdf = pd.DataFrame({})
 exdf['x'] = pos[exAll][:,0]
@@ -321,8 +316,9 @@ exdf['z'] = pos[exAll][:,2]
 exdf['lum_pd'] = lum[exAll]
 exdf['alpha_pd'] = np.log10(met2[exAll])
 exdf['met_pd'] = np.log10(mets[exAll])
+exdf['circ_pd'] = circ[exAll]
 
-wid = 2*min(maxwid,np.linalg.norm(exdf['x'],exdf['y'],exdf['z']))
+wid = 2*min(maxwid,max(np.linalg.norm([exdf['x'],exdf['y'],exdf['z']],axis=0)))
 
 # Make your tick marks at least somewhat reasonable
 if wid<5:
@@ -342,7 +338,7 @@ else:
 tlist = np.arange(-1*math.floor(wid/2./st)*st,math.floor(wid/2./st)*st+1,st)
 
 # start with luminosity
-f3 = plt.figure(figsize=(8,5))
+f3 = plt.figure(figsize=(7,5.5))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -357,7 +353,6 @@ ax1 = plt.Subplot(f3,inner_grid[0,1])
 ax1.set_facecolor('black')
 artist01 = dsshow(exdf, dsh.Point("x", "y"), dsh.sum('lum_pd'), aspect='equal', norm='log',vmin=lmin, vmax=lmax,cmap='Greys_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
 ax1.set_title('Ex Situ',fontsize=fsize+2)
-ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
     
 cbar_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[1], wspace=0.0, hspace=0.08)
@@ -375,17 +370,16 @@ ax1.set_ylabel('[kpc]',fontsize=fsize)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
-ax1 = plt.Subplot(f3,inner_grid[0,1])
+ax1 = plt.Subplot(f3,inner_grid[1,1])
 ax1.set_facecolor('black')
 artist01 = dsshow(exdf, dsh.Point("x", "z"), dsh.sum('lum_pd'), aspect='equal', norm='log',vmin=lmin, vmax=lmax,cmap='Greys_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
-ax1.set_title('Ex Situ',fontsize=fsize+2)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_lum.png',bbox_inches='tight',dpi=200)
 
 # circularity
-f3 = plt.figure(figsize=(8,5))
+f3 = plt.figure(figsize=(7,5.5))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -400,7 +394,6 @@ ax1 = plt.Subplot(f3,inner_grid[0,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "y"), dsh.mean('circ_pd'), aspect='equal', norm='linear',vmin=cmin, vmax=cmax,cmap='seismic_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
 ax1.set_title('Ex Situ',fontsize=fsize+2)
-ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
     
 cbar_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[1], wspace=0.0, hspace=0.08)
@@ -418,17 +411,16 @@ ax1.set_ylabel('[kpc]',fontsize=fsize)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
-ax1 = plt.Subplot(f3,inner_grid[0,1])
+ax1 = plt.Subplot(f3,inner_grid[1,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "z"), dsh.mean('circ_pd'), aspect='equal', norm='linear',vmin=cmin, vmax=cmax,cmap='seismic_r',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
-ax1.set_title('Ex Situ',fontsize=fsize+2)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_circ.png',bbox_inches='tight',dpi=200)
 
 # [Fe/H]
-f3 = plt.figure(figsize=(8,5))
+f3 = plt.figure(figsize=(7,5.5))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -443,7 +435,6 @@ ax1 = plt.Subplot(f3,inner_grid[0,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "y"), dsh.mean('met_pd'), aspect='equal', norm='linear',vmin=mmin, vmax=mmax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
 ax1.set_title('Ex Situ',fontsize=fsize+2)
-ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
     
 cbar_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[1], wspace=0.0, hspace=0.08)
@@ -461,17 +452,16 @@ ax1.set_ylabel('[kpc]',fontsize=fsize)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
-ax1 = plt.Subplot(f3,inner_grid[0,1])
+ax1 = plt.Subplot(f3,inner_grid[1,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "z"), dsh.mean('met_pd'), aspect='equal', norm='linear',vmin=mmin, vmax=mmax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
-ax1.set_title('Ex Situ',fontsize=fsize+2)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_FeH.png',bbox_inches='tight',dpi=200)
 
 # [O/Fe]
-f3 = plt.figure(figsize=(8,5))
+f3 = plt.figure(figsize=(7,5.5))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -486,14 +476,13 @@ ax1 = plt.Subplot(f3,inner_grid[0,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "y"), dsh.mean('alpha_pd'), aspect='equal', norm='linear',vmin=amin, vmax=amax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
 ax1.set_title('Ex Situ',fontsize=fsize+2)
-ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
     
 cbar_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[1], wspace=0.0, hspace=0.08)
 ax2 = plt.Subplot(f3,cbar_grid[0])
 cmap = plt.cm.viridis
 norm = mpl.colors.Normalize(vmin=amin, vmax=amax)
-cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(amin,amax+0.01,0.5),orientation='vertical')
+cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(amin,amax+0.01,0.2),orientation='vertical')
 cb1.set_label(label='[O/Fe]',size=fsize)
 f3.add_subplot(ax2)
 
@@ -504,10 +493,9 @@ ax1.set_ylabel('[kpc]',fontsize=fsize)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
-ax1 = plt.Subplot(f3,inner_grid[0,1])
+ax1 = plt.Subplot(f3,inner_grid[1,1])
 ax1.set_facecolor('lightgrey')
 artist01 = dsshow(exdf, dsh.Point("x", "z"), dsh.mean('alpha_pd'), aspect='equal', norm='linear',vmin=amin, vmax=amax,cmap='viridis',x_range=(-1*(wid/2.),(wid/2.)), y_range=(-1*(wid/2.),(wid/2.)),ax=ax1)
-ax1.set_title('Ex Situ',fontsize=fsize+2)
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
