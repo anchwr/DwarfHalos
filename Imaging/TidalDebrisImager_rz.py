@@ -233,7 +233,8 @@ for i in uIDs:
         cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(cmin,cmax+0.01,0.2),orientation='vertical',label='Circularity')
         f3.add_subplot(ax2)
 
-        plt.savefig(opath+cursim+'_'+i+'_lumcirc.png',bbox_inches='tight',dpi=150)
+        plt.savefig(opath+cursim+'_'+i+'_lumcirc_'+fil+'.png',bbox_inches='tight',dpi=150)
+        plt.close()
 
         # Make a figure that shows [Fe/H] and [O/Fe]
         f3 = plt.figure(figsize=(10,6))
@@ -296,6 +297,7 @@ for i in uIDs:
         f3.add_subplot(ax2)
 
         plt.savefig(opath+cursim+'_'+i+'_fealpha.png',bbox_inches='tight',dpi=150)
+        plt.close()
 
 # Now make these same plots for all in situ material and ex situ material
 isAll = np.where(hostids==ishalo)
@@ -338,7 +340,7 @@ else:
 tlist = np.arange(-1*math.floor(wid/2./st)*st,math.floor(wid/2./st)*st+1,st)
 
 # start with luminosity
-f3 = plt.figure(figsize=(7,5.5))
+f3 = plt.figure(figsize=(7,6))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -376,10 +378,11 @@ artist01 = dsshow(exdf, dsh.Point("x", "z"), dsh.sum('lum_pd'), aspect='equal', 
 ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
-plt.savefig(opath+cursim+'_'+'IsExAll_lum.png',bbox_inches='tight',dpi=200)
+plt.savefig(opath+cursim+'_'+'IsExAll_lum_'+fil+'.png',bbox_inches='tight',dpi=200)
+plt.close()
 
 # circularity
-f3 = plt.figure(figsize=(7,5.5))
+f3 = plt.figure(figsize=(7,6))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -418,9 +421,10 @@ ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_circ.png',bbox_inches='tight',dpi=200)
+plt.close()
 
 # [Fe/H]
-f3 = plt.figure(figsize=(7,5.5))
+f3 = plt.figure(figsize=(7,6))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -459,9 +463,10 @@ ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_FeH.png',bbox_inches='tight',dpi=200)
+plt.close()
 
 # [O/Fe]
-f3 = plt.figure(figsize=(7,5.5))
+f3 = plt.figure(figsize=(7,6))
 outer_grid = gridspec.GridSpec(1, 2, wspace=0.1, hspace=0.0, width_ratios=[20,1])
 inner_grid = gridspec.GridSpecFromSubplotSpec(2,2,subplot_spec=outer_grid[0], wspace=0.15, hspace=0.15)
 
@@ -500,3 +505,4 @@ ax1.set_xlabel('[kpc]',fontsize=fsize)
 f3.add_subplot(ax1)
 
 plt.savefig(opath+cursim+'_'+'IsExAll_OFe.png',bbox_inches='tight',dpi=200)
+plt.close()

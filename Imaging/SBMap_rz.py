@@ -55,14 +55,14 @@ pform = 1   # If pform=1, script will assume that snapshots are located inside o
 spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
 st = 4096 # snapshot number - assumed to be same that you ran SaveLums for if you are reading lums in
 hid = 1 # What is the ID of the halo we're centering on? Almost always 1 for MMs
-halo_lim = 100
-pixel_width = 1500
+halo_lim = 60
+pixel_width = 920
 
 readlum = True # Will you be reading the luminosities of individual star particles in from a file generated with FSPS?
 zpfile = '/Users/Anna/DwarfHalos/Imaging/FSPS_SolABMags.pkl' # file containing zero points for different bands
 Lsol = 3.828*10**33 # luminosity of Sun in ergs/s
-sblow = 39
-sbhigh = 23
+sblow = 35
+sbhigh = 21
 
 if readlum:
     with open(zpfile,'rb') as f:
@@ -91,7 +91,7 @@ pynbody.analysis.halo.center(h[hid])
 # rotate disk to side-on
 disk_rot_arr = pynbody.analysis.angmom.calc_faceon_matrix(norm_L)
 pynbody.transformation.Rotation.rotate(s,disk_rot_arr) # rotate so that our disk is face-on (again moving everything)
-s.rotate_x(90)
+s.rotate_y(90)
 
 # grab star data (no black holes)
 allstars = s.s[s.s['tform'].in_units('Gyr')>0]
@@ -150,8 +150,8 @@ inner_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[0], ws
 cbar_grid = gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer_grid[1], wspace=0.00, hspace=0.09)
 
 ax11 = plt.Subplot(f3,inner_grid[0])
-boundaries = np.arange(sbhigh, sblow, 1)
-cmap_inferno = plt.cm.get_cmap('inferno_r',len(boundaries)+3)
+boundaries = np.arange(sbhigh, sblow+0.1, 0.5)
+cmap_inferno = plt.colormaps['inferno_r'].resampled(len(boundaries)+3)
 colors = list(cmap_inferno(np.arange(len(boundaries))))
 cmap = mpl.colors.ListedColormap(colors, "")
 cmap.set_over('black')
@@ -164,13 +164,8 @@ f3.add_subplot(ax11)
 
 ax21 = plt.Subplot(f3,cbar_grid[0])
 cb = Colorbar(ax=ax21, mappable=ncplot, orientation='vertical',extend="both")
-ax21.set_yticks(ticks=np.arange(sbhigh,sblow,2))
+ax21.set_yticks(ticks=np.arange(sbhigh,sblow+0.1,1))
 cb.set_label(label='Surface Brightness (mag/arcsec$^2$)',size=fsize+4)
 f3.add_subplot(ax21)
-plt.savefig(opath+cursim+'_SB_'+fil+'.png',dpi=300)
-
-
-
-
-
-
+plt.savefig(opath+cursim+'_SB_'+fil+'_'+str(round(pixel_width))+'pc'+'.png',dpi=300)
+plt.close()
