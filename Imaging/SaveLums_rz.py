@@ -48,7 +48,6 @@ else:
         print ('Default is 4 processes')
         sys.exit()        
 
-mform = 994 # formation mass of stars in Msol
 imf = 2 # FSPS IMF type - 2 is a Kroupa+01 IMF
 spec = '.romulus25.3072g1HsbBH' # what's the rest of the rootname for the simulation?
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # where does your simulation live?
@@ -134,7 +133,7 @@ def newstars_gen(stars_list):
 if __name__ == '__main__':
     if pform == 1:
         simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)+'/'+cursim+spec+'.'+str(st).zfill(6)
-    elif pform ==2:
+    elif pform == 2:
         simloc = simpath+cursim+spec+'/'+cursim+spec+'.'+str(st).zfill(6)
     else:
         print ('Error: Path format not understood')
@@ -149,7 +148,7 @@ if __name__ == '__main__':
     age = ct-s.s['tform'][starmask].in_units('Gyr')
     metals = s.s['metals'][starmask]
     ids = s.s['iord'][starmask]
-    mass = np.ones(len(age))*mform
+    mass = s.s['massform'][starmask].in_units('Msol')
     nstars = len(mass)
     zmet = fsps_metallicity_interpolate(metals,nstars) # find closest metallicities we have isochrones for
 

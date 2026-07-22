@@ -69,6 +69,11 @@ if readlum:
         BandSun = pickle.load(f)
     with h5py.File(opath+cursim+'_luminosities.h5','r') as f:
         lum = f[fil][:]
+        pixarea = pixel_width**2 # pixel area in pc^2
+        sqarcsec_in_bin = pixarea / (2.3504430539466191*10**-9) # convert to arcsec^2
+        SB = -2.5 * np.log10((min(lum)/Lsol) / sqarcsec_in_bin)+BandSun[fil]
+        print ('SB limit: '+str(SB)+' mag/arcsec^2')
+
 
 with h5py.File(opath+cursim+'_circ.h5','r') as f:
     partids = f['particle_IDs'][:]
