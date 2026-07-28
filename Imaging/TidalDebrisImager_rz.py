@@ -233,7 +233,7 @@ for i in uIDs:
         cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(cmin,cmax+0.01,0.2),orientation='vertical',label='Circularity')
         f3.add_subplot(ax2)
 
-        plt.savefig(opath+'TidalDebris/'+cursim+'_'+i+'_lumcirc_'+fil+'.png',bbox_inches='tight',dpi=150)
+        plt.savefig(opath+cursim+'_'+i+'_lumcirc_'+fil+'.png',bbox_inches='tight',dpi=150)
         plt.close()
 
         # Make a figure that shows [Fe/H] and [O/Fe]
@@ -296,7 +296,7 @@ for i in uIDs:
         cb1 = mpl.colorbar.ColorbarBase(ax2,cmap=cmap,norm=norm,ticks=np.arange(amin,amax+0.01,0.2),orientation='vertical',label='[O/Fe]')
         f3.add_subplot(ax2)
 
-        plt.savefig(opath+'TidalDebris/'+cursim+'_'+i+'_fealpha.png',bbox_inches='tight',dpi=150)
+        plt.savefig(opath+cursim+'_'+i+'_fealpha.png',bbox_inches='tight',dpi=150)
         plt.close()
 
 # Now make these same plots for all in situ material and ex situ material
