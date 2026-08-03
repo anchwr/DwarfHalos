@@ -112,5 +112,5 @@ for hid,steppath in zip(hnum,tslist):
             plt.ylabel('Normalized Mass Profile', fontsize=fsize)
             plt.legend(fontsize=fsize)
             plt.savefig(opath+cursim+'_'+str(ctr)+'_'+str(stval).zfill(4)+'.png',bbox_inches='tight',dpi=150)
-            plt.show()
+            plt.close()
         ctr += 1
