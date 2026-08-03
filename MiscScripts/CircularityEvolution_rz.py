@@ -42,7 +42,8 @@ else:
 opath = '/Users/Anna/Research/Outputs/dwarf_stellar_halos/'+str(cursim)+'/' # Where do you want outputs from this script to be written?
 simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
 halolim = 50 # How far from this halo do you want your plots to go out (kpc)?
-dbkey = ''
+dbkey = ''  # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
+              # that starts with cursim, you can set dbkey=''
 
 with h5py.File(opath+cursim+'_circ.h5','r') as f:
     norm_L = f['angmom_vec'][:]
@@ -116,6 +117,3 @@ for simloc,hid,curtime in zip(st,hnum,tm):
     ax2.set_yticks([])
     plt.savefig(opath+cursim+'_circularity_SW24_'+simloc[-6:]+'.png',bbox_inches='tight')
     plt.close()
-
-
-
