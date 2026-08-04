@@ -73,7 +73,7 @@ for simloc,hid,curtime in zip(st,hnum,tm):
 
 
     disk_rot_arr = pynbody.analysis.angmom.calc_faceon_matrix(norm_L)
-    if pynbody.__version__<2.0:
+    if int(pynbody.__version__[0])<2.0:
         pynbody.transformation.transform(s,disk_rot_arr)
     else:
         pynbody.transformation.Rotation.rotate(s,disk_rot_arr) # rotate so that our disk is face-on (again moving everything)
