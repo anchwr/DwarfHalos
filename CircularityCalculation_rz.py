@@ -193,7 +193,7 @@ def Abadi_W26(allstars,stars_r,makeplot=False,nbins=100):
         plt.plot(ecmin/(10**5),jcirc_min(ecmin)/(10**3),'r--',label='Max midplane $\Phi$')
         plt.plot(ec/(10**5),jcirc(ec)/(10**3),'r-',label='Mean midplane $\Phi$')
         plt.plot(ecmax/(10**5),jcirc_max(ecmax)/(10**3),'r:',label='Min midplane $\Phi$')
-        plt.xlabel('E (10$^5$ km$^2}$/s$^2$)', fontsize=15)
+        plt.xlabel('E (10$^5$ km$^2$/s$^2$)', fontsize=15)
         plt.ylabel('J$_z$ (10$^3$ kpc km/s)', fontsize=15)
         # comment the below limits out if you want to see where truly obvious ex situ material sits in this plane
         plt.ylim(min(h[hid].s['jz'])/(10**3),max(h[hid].s['jz'])/(10**3))
