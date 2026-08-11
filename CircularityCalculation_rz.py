@@ -52,6 +52,7 @@ from pynbody.analysis import Profile
 from pynbody import array,units
 import math
 from scipy.interpolate import make_interp_spline
+from matplotlib.transforms import Bbox
 
 
 fsize = 16
@@ -263,6 +264,7 @@ for ctr,cm in enumerate(circ):
     ax1 = fig.add_axes([0.1, 0.1, 0.85, 0.85])
 
     artist = dsshow(df,dsh.Point('radius','circularity'),dsh.mean('age'),norm='linear',cmap=age_color_map,x_range=(0,halolim),y_range=(-2,2), vmin=0,vmax=1,aspect='auto',ax=ax1)
+    artist.bbox_df = Bbox([[np.nanmin(df['radius']), np.nanmin(df['circularity'])], [np.nanmax(df['radius']), np.nanmax(df['circularity'])]])
     ax1.set_xlim(0,halolim)
     if circ_method[ctr] == 'Stinson' or circ_method[ctr]=='Stinson_W24':
         ax1.set_ylim(-2,2)
