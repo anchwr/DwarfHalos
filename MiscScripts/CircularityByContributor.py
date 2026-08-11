@@ -23,6 +23,7 @@ import h5py
 from datashader.mpl_ext import dsshow
 import matplotlib.gridspec as gridspec
 import sys
+from matplotlib.transforms import Bbox
 
 fsize = 14
 
@@ -49,7 +50,7 @@ hid = 1 # What is the ID of the halo we're centering on? Almost always 1 for MMs
 st = 4096
 
 # grab relevant data from files
-with h5py.File(datapath+cursim+'_allhalostardata.h5','r') as f:
+with h5py.File(opath+cursim+'_allhalostardata.h5','r') as f:
     hostids = f['host_IDs'].asstr()[:]
     partids = f['particle_IDs'][:]
     pct = f['particle_creation_times'][:]
@@ -101,6 +102,7 @@ for i in uIDs:
     ax1 = fig.add_axes([0.1, 0.1, 0.85, 0.85])
 
     artist = dsshow(df,dsh.Point('radius','circularity'),dsh.mean('age'),norm='linear',cmap=age_color_map,x_range=(0,halolim),y_range=(-2,2), vmin=0,vmax=1,aspect='auto',ax=ax1)
+    artist.bbox_df = Bbox([[np.nanmin(df['radius']), np.nanmin(df['circularity'])], [np.nanmax(df['radius']), np.nanmax(df['circularity'])]])
     ax1.set_xlim(0,halolim)
     if circ_method == 'Stinson' or circ_method == 'Stinson_W24':
         ax1.set_ylim(-2,2)
