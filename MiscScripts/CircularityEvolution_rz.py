@@ -45,6 +45,8 @@ simpath = '/Volumes/Abhorsen/Data/RomZooms/' # Where does your simulation live?
 halolim = 50 # How far from this halo do you want your plots to go out (kpc)?
 dbkey = ''  # Is there a unique identifier for this simulation in your tangos db? If you only have one sim
               # that starts with cursim, you can set dbkey=''
+AHF = True # Was the tangos db built with AHF rather than amiga? This alters the indexing slightly
+
 
 with h5py.File(opath+cursim+'_circ.h5','r') as f:
     norm_L = f['angmom_vec'][:]
@@ -69,6 +71,9 @@ for simloc,hid,curtime in zip(st,hnum,tm):
     s = pynbody.load(simpath+simloc)
     h = s.halos()
     s.physical_units()
+
+    if AHF and isinstance(h,pynbody.halo.number_array.AmigaGrpCatalogue):
+        hid += 1
 
     pynbody.analysis.halo.center(h[hid]) # this centers both spatially and in terms of velocity; we are moving the entire snapshot
 
