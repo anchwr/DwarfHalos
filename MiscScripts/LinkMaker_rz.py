@@ -3,7 +3,8 @@ Script to link together pairs of halos in a tangos database
 If the halos are not in adjacent snapshots, a chain of phantoms
 will be created in the intervening snapshots to link them. These
 phantoms will have negative finder_id values, starting with -1 in
-a given snapshot.
+a given snapshot. Note that, with the current implementation,
+new links will take precedence over existing ones.
 
 Usage: python LinkMaker_rz.py <inputfile> <opt:SanityCheck>
 Example: python LinkMaker_rz.py RomZoomLinks.txt False
@@ -135,7 +136,7 @@ def HaloComparison(sim,halo1,halo2):
     return com1,com2
 
 # Read in input file. Option for third column to indicate whether 
-# new links should take precidence over existing links is coded but
+# new links should take precedence over existing links is coded but
 # currently unused
 cs = []
 h1arr = []
@@ -210,5 +211,3 @@ for h1,h2,cursim,ob in zip(h1arr,h2arr,cs,obe): # for each pair of halos
         print (h1+' and '+h2+' of r'+str(cursim)+' linked!\n' )
     else:
         print ('Not linking!\n')
-
-
